@@ -1,0 +1,2189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Tropico — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F7F0E4;
+    --cream2: #EDE5D5;
+    --warm: #FBF7F0;
+    --sand: #DDD3BE;
+    --orange: #E8692B;
+    --orange-soft: rgba(232,105,43,0.08);
+    --orange-mid: rgba(232,105,43,0.18);
+    --green: #2A7A48;
+    --green-soft: rgba(42,122,72,0.08);
+    --red: #C0392B;
+    --red-soft: rgba(192,57,43,0.08);
+    --blue: #2563EB;
+    --blue-soft: rgba(37,99,235,0.08);
+    --ink: #1C1712;
+    --ink2: #3A322A;
+    --muted: #998E7D;
+    --line: rgba(28,23,18,0.07);
+    --line2: rgba(28,23,18,0.14);
+    --white: #FFFFFF;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::after {
+    content:''; position:fixed; inset:0; z-index:9999;
+    pointer-events:none; opacity:0.02;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ─── LOGIN ─── */
+  .login-screen {
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+    background: var(--cream);
+  }
+
+  .login-card {
+    width: 100%; max-width: 400px;
+    background: var(--warm);
+    border: 1px solid var(--line2);
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 32px 64px -16px rgba(28,23,18,0.12);
+  }
+
+  .login-top {
+    padding: 40px 36px 32px;
+    text-align: center;
+    border-bottom: 1px solid var(--line);
+    background: var(--cream2);
+  }
+
+  .login-brand {
+    font-family: 'Bebas Neue', sans-serif !important;
+    font-size: 32px; letter-spacing: 4px;
+    color: var(--ink); margin-bottom: 4px;
+    font-style: normal !important;
+  }
+
+  .sb-logo {
+    font-family: 'Bebas Neue', sans-serif !important;
+    font-size: 22px; letter-spacing: 3px; color: var(--ink);
+    font-style: normal !important;
+  }
+    font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .login-body { padding: 36px; }
+
+  .branch-pick {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; margin-bottom: 28px;
+  }
+
+  .branch-pick-btn {
+    padding: 14px 10px; text-align: center;
+    border: 1px solid var(--line); border-radius: 3px;
+    background: var(--cream); cursor: pointer;
+    transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+  }
+  .branch-pick-btn:hover { border-color: var(--line2); }
+  .branch-pick-btn.sel-og { border-color: var(--orange); background: var(--orange-soft); }
+  .branch-pick-btn.sel-hide { border-color: var(--green); background: var(--green-soft); }
+
+  .bpb-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    margin: 0 auto 8px;
+  }
+  .branch-pick-btn:nth-child(1) .bpb-dot { background: var(--sand); }
+  .branch-pick-btn:nth-child(2) .bpb-dot { background: var(--sand); }
+  .branch-pick-btn.sel-og .bpb-dot { background: var(--orange); box-shadow: 0 0 8px rgba(232,105,43,0.5); }
+  .branch-pick-btn.sel-hide .bpb-dot { background: var(--green); box-shadow: 0 0 8px rgba(42,122,72,0.5); }
+
+  .bpb-name {
+    font-size: 12px; font-weight: 600; letter-spacing: 0.5px;
+    color: var(--ink);
+  }
+  .bpb-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  .passcode-label {
+    font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 10px;
+  }
+
+  .passcode-dots {
+    display: flex; gap: 12px; justify-content: center;
+    margin-bottom: 24px;
+  }
+
+  .pdot {
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 1.5px solid var(--sand); background: transparent;
+    transition: all 0.15s;
+  }
+  .pdot.filled { background: var(--orange); border-color: var(--orange); }
+  .pdot.filled.hide { background: var(--green); border-color: var(--green); }
+
+  .keypad {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .key {
+    padding: 16px; text-align: center;
+    background: var(--cream2); border: 1px solid var(--line);
+    border-radius: 3px; cursor: pointer;
+    font-size: 18px; font-weight: 500; color: var(--ink);
+    transition: all 0.15s; font-family: 'DM Sans', sans-serif;
+    user-select: none;
+  }
+  .key:hover { background: var(--cream); border-color: var(--line2); transform: scale(0.97); }
+  .key:active { transform: scale(0.94); }
+  .key.del { font-size: 14px; color: var(--muted); }
+  .key.wide { grid-column: span 3; }
+
+  .login-error {
+    text-align: center; font-size: 12px; color: var(--red);
+    margin-top: 16px; display: none;
+    animation: shake 0.3s ease;
+  }
+  .login-error.show { display: block; }
+
+  @keyframes shake {
+    0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)}
+  }
+
+  /* ─── ADMIN LAYOUT ─── */
+  .admin-layout { display: none; min-height: 100vh; }
+  .admin-layout.active { display: flex; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 240px; flex-shrink: 0;
+    background: var(--warm);
+    border-right: 1px solid var(--line);
+    display: flex; flex-direction: column;
+    position: fixed; top: 0; left: 0; bottom: 0;
+    z-index: 50;
+    transition: transform 0.3s;
+  }
+
+  .sidebar-brand {
+    padding: 24px 20px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .login-subtitle {
+    display: flex; align-items: center; gap: 6px;
+    margin-top: 6px; font-size: 11px; letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+  .sb-branch.og { color: var(--orange); }
+  .sb-branch.hide { color: var(--green); }
+  .sb-branch .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .sb-branch.og .dot { background: var(--orange); }
+  .sb-branch.hide .dot { background: var(--green); }
+
+  .sidebar-nav {
+    flex: 1; padding: 16px 12px;
+    overflow-y: auto;
+  }
+
+  .nav-section-label {
+    font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--muted); padding: 8px 8px 6px;
+    margin-bottom: 4px;
+  }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 3px;
+    cursor: pointer; transition: all 0.15s;
+    font-size: 13px; color: var(--ink2);
+    margin-bottom: 2px;
+  }
+  .nav-item:hover { background: var(--cream2); color: var(--ink); }
+  .nav-item.active { background: var(--orange-soft); color: var(--orange); font-weight: 500; }
+  .nav-item.active.hide-branch { background: var(--green-soft); color: var(--green); }
+  .nav-item .ni-icon { font-size: 15px; flex-shrink: 0; }
+  .nav-item .ni-badge {
+    margin-left: auto; background: var(--orange);
+    color: white; font-size: 10px; font-weight: 600;
+    padding: 1px 6px; border-radius: 10px; min-width: 18px; text-align: center;
+  }
+  .nav-item .ni-badge.hide { background: var(--green); }
+
+  .sidebar-bottom {
+    padding: 16px 12px;
+    border-top: 1px solid var(--line);
+  }
+
+  .logout-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 12px; border-radius: 3px;
+    cursor: pointer; font-size: 12px; color: var(--muted);
+    transition: all 0.2s; width: 100%;
+    background: none; border: none; font-family: 'DM Sans', sans-serif;
+  }
+  .logout-btn:hover { color: var(--red); background: var(--red-soft); }
+
+  /* MAIN CONTENT */
+  .admin-main {
+    flex: 1; margin-left: 240px;
+    display: flex; flex-direction: column;
+    min-height: 100vh;
+  }
+
+  .admin-topbar {
+    background: rgba(247,240,228,0.94);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+    padding: 16px 28px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 40;
+  }
+
+  .topbar-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px; letter-spacing: 1px; color: var(--ink);
+  }
+
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+  .topbar-date {
+    font-size: 11px; color: var(--muted); letter-spacing: 0.5px;
+  }
+
+  .add-booking-btn {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--orange); color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+    font-weight: 600; padding: 10px 18px;
+    border: none; border-radius: 2px; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .add-booking-btn.hide-btn { background: var(--green); }
+  .add-booking-btn:hover { opacity: 0.9; box-shadow: 0 4px 12px -4px rgba(0,0,0,0.2); }
+
+  .hamburger {
+    display: none; background: none; border: none;
+    font-size: 20px; cursor: pointer; color: var(--ink);
+    padding: 4px;
+  }
+
+  /* PANELS */
+  .panel { display: none; padding: 28px; }
+  .panel.active { display: block; animation: fadeUp 0.3s ease; }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ─── DASHBOARD ─── */
+  .stats-row {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 16px; margin-bottom: 28px;
+  }
+
+  .stat-card {
+    background: var(--warm); border: 1px solid var(--line);
+    border-radius: 4px; padding: 20px;
+    position: relative; overflow: hidden;
+  }
+  .stat-card::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .stat-card.orange::after { background: var(--orange); }
+  .stat-card.green::after { background: var(--green); }
+  .stat-card.blue::after { background: var(--blue); }
+  .stat-card.muted::after { background: var(--sand); }
+
+  .stat-label {
+    font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 8px;
+  }
+  .stat-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 40px; line-height: 1; color: var(--ink);
+  }
+  .stat-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* COURTS STATUS */
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px; letter-spacing: 0.5px; color: var(--ink);
+  }
+  .section-sub { font-size: 11px; color: var(--muted); }
+
+  .courts-status-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px; margin-bottom: 32px;
+  }
+
+  .court-status-card {
+    background: var(--warm); border: 1px solid var(--line);
+    border-radius: 4px; padding: 16px;
+    transition: all 0.2s;
+  }
+
+  .csc-top {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .csc-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .csc-num { font-size: 10px; color: var(--muted); letter-spacing: 1px; }
+
+  .csc-status {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; margin-bottom: 12px;
+  }
+  .csc-dot { width: 7px; height: 7px; border-radius: 50%; }
+  .csc-status.available .csc-dot { background: var(--green); box-shadow: 0 0 6px rgba(42,122,72,0.5); }
+  .csc-status.busy .csc-dot { background: var(--red); box-shadow: 0 0 6px rgba(192,57,43,0.4); }
+  .csc-status.available { color: var(--green); }
+  .csc-status.busy { color: var(--red); }
+
+  .toggle-busy-btn {
+    width: 100%; padding: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+    font-weight: 600; border-radius: 2px; cursor: pointer;
+    transition: all 0.2s; border: 1px solid var(--line);
+    background: var(--cream);
+    color: var(--ink2);
+  }
+  .toggle-busy-btn:hover { border-color: var(--line2); }
+  .court-status-card.busy-card { border-color: rgba(192,57,43,0.25); background: rgba(192,57,43,0.03); }
+  .court-status-card.busy-card .toggle-busy-btn { background: var(--red-soft); color: var(--red); border-color: rgba(192,57,43,0.2); }
+
+  /* COURT DETAIL CARDS (courts panel) */
+  .court-detail-card { background: var(--warm); border: 1px solid var(--line2); border-radius: 4px; margin-bottom: 10px; overflow: hidden; }
+  .court-detail-card.busy-card { border-color: rgba(192,57,43,0.25); }
+  .cdc-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; cursor: pointer; transition: background 0.15s; }
+  .cdc-header:hover { background: var(--cream2); }
+  .cdc-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .cdc-expand { font-size: 15px; color: var(--muted); transition: transform 0.2s; user-select: none; }
+  .cdc-expand.open { transform: rotate(180deg); }
+  .cdc-slots { display: none; padding: 14px 18px; border-top: 1px solid var(--line); }
+  .cdc-slots.open { display: block; }
+  .slot-legend { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; font-size: 11px; color: var(--ink2); }
+  .sl-item { display: flex; align-items: center; gap: 5px; }
+  .sl-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+  .slot-timeline { display: grid; grid-template-columns: repeat(auto-fill, minmax(62px,1fr)); gap: 5px; }
+  .slot-chip { padding: 5px 3px; text-align: center; border-radius: 3px; font-size: 11px; font-weight: 500; }
+  .slot-chip-label { font-size: 9px; opacity: 0.75; text-transform: uppercase; margin-top: 1px; }
+  .slot-chip.available { background: #d4edda; color: #155724; }
+  .slot-chip.pending { background: rgba(232,105,43,0.13); color: #B45309; border: 1px solid rgba(232,105,43,0.3); }
+  .slot-chip.booked { background: rgba(192,57,43,0.13); color: #C0392B; border: 1px solid rgba(192,57,43,0.3); }
+  .slot-chip.busy { background: #e2e3e5; color: #495057; }
+
+  /* TODAY'S BOOKINGS TABLE */
+  .bookings-table-wrap {
+    background: var(--warm); border: 1px solid var(--line);
+    border-radius: 4px; overflow: hidden;
+  }
+
+  .table-head {
+    display: grid; padding: 12px 20px;
+    background: var(--cream2); border-bottom: 1px solid var(--line);
+    font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .table-head.booking-cols { grid-template-columns: 1.2fr 1fr 0.8fr 0.8fr 0.7fr 0.7fr 1fr; }
+
+  .booking-row {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--line);
+    transition: background 0.15s;
+    font-size: 13px;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 0.8fr 0.8fr 0.7fr 0.7fr 1fr;
+    align-items: center;
+  }
+  .booking-row:last-child { border-bottom: none; }
+  .booking-row:hover { background: var(--cream2); }
+  .booking-row.cancelled { opacity: 0.45; }
+
+  /* MOBILE — card style */
+  @media (max-width: 600px) {
+    .table-head.booking-cols { display: none; }
+    .booking-row {
+      display: block;
+      padding: 16px 20px;
+    }
+    .booking-row-top {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 6px;
+    }
+    .booking-row-mid {
+      display: flex; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 12px; align-items: center;
+    }
+    .booking-row-bot {
+      display: flex; gap: 8px; align-items: center;
+    }
+    .br-dur, .br-phone-desktop { display: none; }
+  }
+
+  @media (min-width: 601px) {
+    .booking-row-top, .booking-row-mid, .booking-row-bot { display: contents; }
+  }
+
+  .br-name { font-weight: 500; color: var(--ink); }
+  .br-phone { color: var(--ink2); font-size: 12px; }
+  .br-court { color: var(--ink2); }
+  .br-time { color: var(--ink2); }
+  .br-dur { color: var(--muted); font-size: 12px; }
+
+  .pay-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 2px; font-weight: 500;
+  }
+  .pay-badge.online { background: var(--blue-soft); color: var(--blue); }
+  .pay-badge.cash { background: var(--green-soft); color: var(--green); }
+
+  .br-actions { display: flex; gap: 6px; }
+
+  .action-btn {
+    padding: 5px 10px; font-size: 10px; letter-spacing: 1px;
+    text-transform: uppercase; font-weight: 600;
+    border-radius: 2px; cursor: pointer; border: 1px solid;
+    font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+  }
+  .action-btn.cancel-btn { border-color: rgba(192,57,43,0.2); color: var(--red); background: var(--red-soft); }
+  .action-btn.cancel-btn:hover { background: rgba(192,57,43,0.15); }
+  .action-btn.paid-btn { border-color: rgba(42,122,72,0.2); color: var(--green); background: var(--green-soft); }
+  .action-btn.paid-btn:hover { background: rgba(42,122,72,0.15); }
+
+  .empty-bookings {
+    padding: 48px 20px; text-align: center;
+    color: var(--muted); font-size: 14px;
+  }
+  .empty-bookings .empty-icon { font-size: 32px; margin-bottom: 12px; }
+
+  /* ─── BOOKINGS PAGE FILTER BAR ─── */
+  .filter-bar {
+    display: flex; gap: 10px; margin-bottom: 20px;
+    flex-wrap: wrap; align-items: center;
+  }
+
+  .filter-btn {
+    padding: 8px 16px; font-size: 11px; letter-spacing: 1.5px;
+    text-transform: uppercase; font-weight: 500;
+    border: 1px solid var(--line); border-radius: 2px;
+    background: var(--warm); color: var(--ink2);
+    cursor: pointer; transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .filter-btn:hover { border-color: var(--line2); }
+  .filter-btn.active-filter { background: var(--orange-soft); border-color: var(--orange); color: var(--orange); }
+  .filter-btn.active-filter.hf { background: var(--green-soft); border-color: var(--green); color: var(--green); }
+
+  .filter-search {
+    flex: 1; min-width: 180px;
+    background: var(--warm); border: 1px solid var(--line);
+    color: var(--ink); font-family: 'DM Sans', sans-serif;
+    font-size: 13px; padding: 9px 14px; border-radius: 2px;
+    outline: none; transition: border-color 0.2s;
+  }
+  .filter-search::placeholder { color: var(--sand); }
+  .filter-search:focus { border-color: var(--line2); }
+
+  /* ─── REPORTS ─── */
+  .reports-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 20px; margin-bottom: 24px;
+  }
+
+  .report-card {
+    background: var(--warm); border: 1px solid var(--line);
+    border-radius: 4px; padding: 24px;
+  }
+  .rc-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px; letter-spacing: 0.5px;
+    color: var(--ink); margin-bottom: 16px;
+  }
+  .rc-row {
+    display: flex; justify-content: space-between;
+    align-items: center; padding: 10px 0;
+    border-bottom: 1px solid var(--line); font-size: 13px;
+  }
+  .rc-row:last-child { border-bottom: none; }
+  .rc-key { color: var(--ink2); }
+  .rc-val { font-weight: 600; color: var(--ink); }
+  .rc-val.orange { color: var(--orange); }
+  .rc-val.green { color: var(--green); }
+
+  /* BAR CHART */
+  .mini-chart {
+    display: flex; align-items: flex-end; gap: 6px;
+    height: 80px; margin-top: 16px;
+  }
+  .chart-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .chart-bar {
+    width: 100%; border-radius: 2px 2px 0 0;
+    transition: height 0.5s cubic-bezier(0.22,1,0.36,1);
+  }
+  .chart-bar.og-bar { background: var(--orange); opacity: 0.7; }
+  .chart-bar.hide-bar { background: var(--green); opacity: 0.7; }
+  .chart-label { font-size: 9px; color: var(--muted); text-align: center; }
+
+  /* ─── NEW BOOKING MODAL ─── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    z-index: 200; background: rgba(28,23,18,0.45);
+    backdrop-filter: blur(6px);
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal-overlay.open { display: flex; animation: fadeIn 0.25s; }
+  @keyframes fadeIn { from{opacity:0}to{opacity:1} }
+
+  .modal {
+    background: var(--warm); border: 1px solid var(--line2);
+    border-radius: 4px; width: 100%; max-width: 460px;
+    max-height: 90vh; overflow-y: auto;
+    box-shadow: 0 40px 80px -20px rgba(28,23,18,0.25);
+    animation: modalIn 0.35s cubic-bezier(0.22,1,0.36,1);
+  }
+  @keyframes modalIn { from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)} }
+
+  .modal-head {
+    padding: 24px 28px 18px;
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .modal-head-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px; letter-spacing: 0.5px; color: var(--ink);
+  }
+  .modal-close {
+    background: none; border: none; font-size: 18px;
+    color: var(--muted); cursor: pointer; padding: 4px;
+    transition: color 0.2s;
+  }
+  .modal-close:hover { color: var(--ink); }
+
+  /* MODAL STEPS */
+  .modal-steps {
+    display: flex; padding: 16px 28px;
+    border-bottom: 1px solid var(--line);
+    gap: 0;
+  }
+  .ms-item { display: flex; align-items: center; gap: 8px; flex: 1; }
+  .ms-num {
+    width: 24px; height: 24px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600;
+    border: 1px solid var(--line); color: var(--muted); background: var(--cream);
+    transition: all 0.25s;
+  }
+  .ms-item.act .ms-num { background: var(--orange); color: white; border-color: var(--orange); }
+  .ms-item.act.hb .ms-num { background: var(--green); border-color: var(--green); }
+  .ms-item.dn .ms-num { background: var(--cream2); color: var(--muted); }
+  .ms-item.dn .ms-num::after { content: '✓'; }
+  .ms-item.dn .ms-num span { display: none; }
+  .ms-label { font-size: 11px; color: var(--muted); }
+  .ms-item.act .ms-label { color: var(--ink); }
+  .ms-conn { flex: 0 0 16px; height: 1px; background: var(--line); margin: 0 4px; align-self: center; }
+
+  /* MODAL BODY */
+  .modal-body { padding: 24px 28px; min-height: 200px; }
+  .m-panel { display: none; }
+  .m-panel.act { display: block; animation: fadeUp 0.25s ease; }
+
+  .m-sec-label {
+    font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 14px;
+  }
+
+  /* COURT PICKER */
+  .court-picker {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 8px; margin-bottom: 20px;
+  }
+  .cp-opt {
+    padding: 12px; border: 1px solid var(--line); border-radius: 3px;
+    background: var(--cream); cursor: pointer; transition: all 0.15s;
+    font-size: 13px; color: var(--ink); font-family: 'DM Sans', sans-serif;
+    text-align: center;
+  }
+  .cp-opt:hover { border-color: var(--line2); }
+  .cp-opt.sel-og { border-color: var(--orange); background: var(--orange-soft); color: var(--orange); font-weight: 500; }
+  .cp-opt.sel-hide { border-color: var(--green); background: var(--green-soft); color: var(--green); font-weight: 500; }
+
+  /* DURATION */
+  .dur-grid {
+    display: grid; grid-template-columns: repeat(3,1fr);
+    gap: 10px; margin-bottom: 4px;
+  }
+  .dur-opt {
+    padding: 18px 8px; text-align: center;
+    border: 1px solid var(--line); border-radius: 3px;
+    background: var(--cream); cursor: pointer; transition: all 0.15s;
+  }
+  .dur-opt:hover { border-color: var(--line2); }
+  .dur-opt.sel-og { border-color: var(--orange); background: var(--orange-soft); }
+  .dur-opt.sel-hide { border-color: var(--green); background: var(--green-soft); }
+  .dur-num { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--ink); line-height: 1; }
+  .dur-opt.sel-og .dur-num { color: var(--orange); }
+  .dur-opt.sel-hide .dur-num { color: var(--green); }
+  .dur-unit { font-size: 10px; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; margin-top: 2px; }
+
+  /* TIME GRID */
+  .time-grid {
+    display: grid; grid-template-columns: repeat(4,1fr);
+    gap: 6px; max-height: 220px; overflow-y: auto; padding-right: 2px;
+  }
+  .time-grid::-webkit-scrollbar { width: 3px; }
+  .time-grid::-webkit-scrollbar-thumb { background: var(--sand); border-radius: 2px; }
+  .t-slot {
+    padding: 9px 4px; text-align: center; font-size: 12px;
+    border: 1px solid var(--line); border-radius: 3px;
+    background: var(--cream); cursor: pointer; transition: all 0.12s;
+    color: var(--ink2);
+  }
+  .t-slot:hover { border-color: var(--line2); }
+  .t-slot.sel-og { border-color: var(--orange); background: var(--orange-soft); color: var(--orange); font-weight: 600; }
+  .t-slot.sel-hide { border-color: var(--green); background: var(--green-soft); color: var(--green); font-weight: 600; }
+  .t-slot.taken { opacity: 0.3; cursor: not-allowed; text-decoration: line-through; }
+
+  /* FORM */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+  .form-col { display: flex; flex-direction: column; gap: 6px; }
+  .form-col.full { grid-column: 1/-1; }
+  .f-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+  .f-input {
+    background: var(--cream); border: 1px solid var(--line);
+    color: var(--ink); font-family: 'DM Sans', sans-serif;
+    font-size: 13px; padding: 11px 13px; border-radius: 3px;
+    outline: none; transition: border-color 0.2s; width: 100%;
+  }
+  .f-input::placeholder { color: var(--sand); }
+  .f-input:focus { border-color: var(--sand); }
+  select.f-input { cursor: pointer; }
+
+  /* PAYMENT */
+  .pay-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
+  .pay-opt {
+    padding: 12px; border: 1px solid var(--line); border-radius: 3px;
+    background: var(--cream); cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink2);
+  }
+  .pay-opt:hover { border-color: var(--line2); }
+  .pay-opt.sel-og { border-color: var(--orange); background: var(--orange-soft); }
+  .pay-opt.sel-hide { border-color: var(--green); background: var(--green-soft); }
+  .pay-opt .emoji { font-size: 16px; }
+
+  /* MODAL FOOTER */
+  .modal-foot {
+    padding: 16px 28px; border-top: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .m-back {
+    background: none; border: 1px solid var(--line); color: var(--ink2);
+    font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 1.5px;
+    text-transform: uppercase; padding: 10px 16px; border-radius: 2px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .m-back:hover { background: var(--cream); }
+  .m-next {
+    background: var(--orange); color: white;
+    font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 2px;
+    text-transform: uppercase; font-weight: 600; padding: 12px 24px;
+    border: none; border-radius: 2px; cursor: pointer; transition: all 0.2s;
+  }
+  .m-next.hb { background: var(--green); }
+  .m-next:hover { opacity: 0.9; box-shadow: 0 4px 12px -4px rgba(0,0,0,0.2); }
+  .m-next:disabled { opacity: 0.3; cursor: not-allowed; box-shadow: none; }
+
+  /* PENDING CARDS */
+  .pending-section {
+    margin-bottom: 8px;
+  }
+  .pending-section-label {
+    font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--orange); font-weight: 600;
+    padding: 12px 20px 8px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(232,105,43,0.04);
+  }
+
+  .pending-card {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--line);
+    background: var(--warm);
+    transition: background 0.15s;
+  }
+  .pending-card:hover { background: var(--cream2); }
+
+  .pending-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .pending-badge {
+    font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: #B45309; background: rgba(180,83,9,0.08);
+    border: 1px solid rgba(180,83,9,0.15);
+    padding: 3px 8px; border-radius: 2px; font-weight: 600;
+  }
+
+  .pending-time-ago {
+    font-size: 11px; color: var(--muted);
+  }
+
+  .pending-main {
+    margin-bottom: 12px;
+  }
+
+  .pending-name {
+    font-size: 15px; font-weight: 600; color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .pending-details {
+    font-size: 13px; color: var(--ink2); line-height: 1.5;
+  }
+
+  .pending-actions {
+    display: flex; gap: 10px; align-items: center;
+  }
+
+  .pact-btn {
+    width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 3px; font-size: 18px;
+    cursor: pointer; transition: all 0.15s;
+    border: 1px solid var(--line);
+    text-decoration: none;
+    background: var(--cream);
+  }
+  .pact-btn:hover { transform: scale(1.08); border-color: var(--line2); }
+  .confirm-pact { background: rgba(42,122,72,0.08); border-color: rgba(42,122,72,0.2); }
+  .confirm-pact:hover { background: rgba(42,122,72,0.15); }
+  .decline-pact { background: rgba(192,57,43,0.08); border-color: rgba(192,57,43,0.2); }
+  .decline-pact:hover { background: rgba(192,57,43,0.15); }
+  .wa-pact { background: rgba(37,211,102,0.08); border-color: rgba(37,211,102,0.2); }
+  .wa-pact:hover { background: rgba(37,211,102,0.15); }
+
+  /* WA button in table */
+  .action-btn.wa-btn {
+    text-decoration: none; display: inline-flex; align-items: center; justify-content: center;
+    border-color: rgba(37,211,102,0.25); color: #1a9c4a; background: rgba(37,211,102,0.08);
+  }
+  .action-btn.wa-btn:hover { background: rgba(37,211,102,0.15); }
+
+  .cancelled-reason { font-size: 11px; color: var(--muted); }
+  .paid-label { font-size: 11px; color: var(--green); font-weight: 500; }
+
+  /* Fix cancel modal */
+  #cancel-modal {
+    display: none;
+    position: fixed; inset: 0;
+    z-index: 300;
+    background: rgba(28,23,18,0.5);
+    backdrop-filter: blur(6px);
+    align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .cancel-modal {
+    background: var(--warm); border: 1px solid var(--line2);
+    border-radius: 4px; width: 100%; max-width: 380px;
+    padding: 28px;
+    box-shadow: 0 40px 80px -20px rgba(28,23,18,0.25);
+    animation: modalIn 0.3s cubic-bezier(0.22,1,0.36,1);
+  }
+  .cm-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px; color: var(--ink); margin-bottom: 6px;
+  }
+  .cm-sub { font-size: 13px; color: var(--ink2); margin-bottom: 20px; }
+  .reason-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+  .reason-btn {
+    padding: 10px 8px; text-align: center; font-size: 12px;
+    border: 1px solid var(--line); border-radius: 3px;
+    background: var(--cream); cursor: pointer; transition: all 0.15s;
+    color: var(--ink2); font-family: 'DM Sans', sans-serif;
+  }
+  .reason-btn:hover { border-color: var(--line2); }
+  .reason-btn.sel { border-color: var(--red); background: var(--red-soft); color: var(--red); }
+  .pay-method-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .pay-method-btn {
+    padding: 16px 8px; text-align: center; border: 1px solid var(--line);
+    border-radius: 3px; background: var(--cream); cursor: pointer;
+    transition: all 0.15s; font-family: 'DM Sans', sans-serif;
+  }
+  .pay-method-btn:hover { border-color: var(--green); background: var(--green-soft); }
+  .confirm-cancel-btn {
+    width: 100%; padding: 12px; background: var(--red); color: white;
+    font-family: 'DM Sans', sans-serif; font-size: 12px; letter-spacing: 1.5px;
+    text-transform: uppercase; font-weight: 600; border: none; border-radius: 2px;
+    cursor: pointer; transition: all 0.2s; margin-top: 4px;
+  }
+  .confirm-cancel-btn:hover { background: #a93226; }
+  .confirm-cancel-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .cancel-close-btn {
+    width: 100%; padding: 10px; background: none; color: var(--muted);
+    font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 1px;
+    text-transform: uppercase; border: 1px solid var(--line); border-radius: 2px;
+    cursor: pointer; margin-top: 8px; transition: all 0.2s;
+  }
+  .cancel-close-btn:hover { color: var(--ink); border-color: var(--line2); }
+
+  /* MOBILE */
+  .mobile-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(28,23,18,0.4); z-index: 45;
+  }
+
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .mobile-overlay.show { display: block; }
+    .admin-main { margin-left: 0; }
+    .hamburger { display: block; }
+    .stats-row { grid-template-columns: repeat(2,1fr); }
+    .table-head, .booking-row { grid-template-columns: 1fr 0.8fr 0.6fr 0.6fr; }
+    .table-head span:nth-child(n+5), .booking-row > *:nth-child(n+5) { display: none; }
+    .reports-grid { grid-template-columns: 1fr; }
+    .panel { padding: 16px; }
+    .admin-topbar { padding: 14px 16px; }
+    .filter-bar { gap: 8px; }
+    .time-grid { grid-template-columns: repeat(3,1fr); }
+    .court-picker { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════ LOGIN ═══════ -->
+<div class="login-screen" id="login-screen">
+  <div class="login-card">
+    <div class="login-top">
+      <div class="login-brand">TROPICO</div>
+      <div class="login-subtitle">Admin Access</div>
+    </div>
+    <div class="login-body">
+      <div class="passcode-label" style="text-align:center;margin-bottom:12px">Select Branch</div>
+      <div class="branch-pick">
+        <div class="branch-pick-btn" id="login-og" onclick="selectLoginBranch('og')">
+          <div class="bpb-dot"></div>
+          <div class="bpb-name">OG Branch</div>
+          <div class="bpb-sub">Original</div>
+        </div>
+        <div class="branch-pick-btn" id="login-hide" onclick="selectLoginBranch('hide')">
+          <div class="bpb-dot"></div>
+          <div class="bpb-name">Hideaway</div>
+          <div class="bpb-sub">Jungle</div>
+        </div>
+      </div>
+
+      <div class="passcode-label" style="text-align:center;margin-bottom:10px">Enter Passcode</div>
+      <div class="passcode-dots" id="pdots">
+        <div class="pdot" id="pd0"></div>
+        <div class="pdot" id="pd1"></div>
+        <div class="pdot" id="pd2"></div>
+        <div class="pdot" id="pd3"></div>
+      </div>
+
+      <div class="keypad">
+        <div class="key" onclick="keyPress('1')">1</div>
+        <div class="key" onclick="keyPress('2')">2</div>
+        <div class="key" onclick="keyPress('3')">3</div>
+        <div class="key" onclick="keyPress('4')">4</div>
+        <div class="key" onclick="keyPress('5')">5</div>
+        <div class="key" onclick="keyPress('6')">6</div>
+        <div class="key" onclick="keyPress('7')">7</div>
+        <div class="key" onclick="keyPress('8')">8</div>
+        <div class="key" onclick="keyPress('9')">9</div>
+        <div class="key" onclick="clearCode()">C</div>
+        <div class="key" onclick="keyPress('0')">0</div>
+        <div class="key del" onclick="delKey()">⌫</div>
+      </div>
+      <div class="login-error" id="login-error">Incorrect passcode. Try again.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ ADMIN LAYOUT ═══════ -->
+<div class="admin-layout" id="admin-layout">
+
+  <!-- MOBILE OVERLAY -->
+  <div class="mobile-overlay" id="mob-overlay" onclick="closeSidebar()"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sb-logo">TROPICO</div>
+      <div class="sb-branch" id="sb-branch-label"></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Overview</div>
+      <div class="nav-item active" data-panel="dashboard" onclick="switchPanel('dashboard')">
+        <span class="ni-icon">⊞</span> Dashboard
+        <span class="ni-badge" id="today-badge">0</span>
+      </div>
+      <div class="nav-section-label">Bookings</div>
+      <div class="nav-item" data-panel="bookings" onclick="switchPanel('bookings')">
+        <span class="ni-icon">📋</span> All Bookings
+      </div>
+      <div class="nav-item" data-panel="new-booking" onclick="openNewBooking()">
+        <span class="ni-icon">＋</span> Add Booking
+      </div>
+      <div class="nav-section-label">Management</div>
+      <div class="nav-item" data-panel="courts" onclick="switchPanel('courts')">
+        <span class="ni-icon">🎾</span> Court Status
+      </div>
+      <div class="nav-section-label">Analytics</div>
+      <div class="nav-item" data-panel="reports" onclick="switchPanel('reports')">
+        <span class="ni-icon">📊</span> Monthly Reports
+      </div>
+    </nav>
+    <div class="sidebar-bottom">
+      <button class="logout-btn" onclick="logout()">
+        <span>⎋</span> Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <div class="topbar-title" id="topbar-title">Dashboard</div>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-date" id="topbar-date"></div>
+        <button class="add-booking-btn" id="add-btn" onclick="openNewBooking()">＋ Add Booking</button>
+      </div>
+    </div>
+
+    <!-- DASHBOARD PANEL -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="stats-row">
+        <div class="stat-card orange">
+          <div class="stat-label">Today's Bookings</div>
+          <div class="stat-val" id="stat-today">0</div>
+          <div class="stat-sub">Confirmed sessions</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Cash Pending</div>
+          <div class="stat-val" id="stat-cash">0</div>
+          <div class="stat-sub">To collect at club</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-label">Online Paid</div>
+          <div class="stat-val" id="stat-online">0</div>
+          <div class="stat-sub">Paid at booking</div>
+        </div>
+        <div class="stat-card muted">
+          <div class="stat-label">Cancelled</div>
+          <div class="stat-val" id="stat-cancelled">0</div>
+          <div class="stat-sub">Today</div>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <div>
+          <div class="section-title">Court Status</div>
+          <div class="section-sub">Quick overview — toggle busy/available</div>
+        </div>
+      </div>
+      <div class="courts-status-grid" id="dash-courts-grid"></div>
+
+      <div class="section-header" style="margin-top:8px">
+        <div class="section-title">Today's Bookings</div>
+      </div>
+      <div class="bookings-table-wrap">
+        <div class="table-head booking-cols">
+          <span>Name</span><span>Phone</span><span>Court</span><span>Time</span><span>Duration</span><span>Payment</span><span>Actions</span>
+        </div>
+        <div id="dash-bookings-list"></div>
+      </div>
+    </div>
+
+    <!-- ALL BOOKINGS PANEL -->
+    <div class="panel" id="panel-bookings">
+      <div class="filter-bar">
+        <button class="filter-btn active-filter" id="f-all" onclick="filterBookings('all')">All</button>
+        <button class="filter-btn" id="f-pending" onclick="filterBookings('pending')">⏳ Pending</button>
+        <button class="filter-btn" id="f-today" onclick="filterBookings('today')">Today</button>
+        <button class="filter-btn" id="f-upcoming" onclick="filterBookings('upcoming')">Upcoming</button>
+        <button class="filter-btn" id="f-cancelled" onclick="filterBookings('cancelled')">Cancelled</button>
+        <input class="filter-search" id="booking-search" placeholder="Search by name or number..." oninput="renderBookings()" />
+      </div>
+      <div class="bookings-table-wrap">
+        <div class="table-head booking-cols">
+          <span>Name</span><span>Phone</span><span>Court</span><span>Time</span><span>Duration</span><span>Payment</span><span>Actions</span>
+        </div>
+        <div id="all-bookings-list"></div>
+      </div>
+    </div>
+
+    <!-- COURTS PANEL -->
+    <div class="panel" id="panel-courts">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Court Status</div>
+          <div class="section-sub">Click a court to see today's time slot availability</div>
+        </div>
+      </div>
+      <div id="courts-grid"></div>
+    </div>
+
+    <!-- REPORTS PANEL -->
+    <div class="panel" id="panel-reports">
+      <div class="reports-grid">
+        <div class="report-card">
+          <div class="rc-title">This Month</div>
+          <div class="rc-row"><span class="rc-key">Total Bookings</span><span class="rc-val" id="r-total">0</span></div>
+          <div class="rc-row"><span class="rc-key">Cash Bookings</span><span class="rc-val green" id="r-cash">0</span></div>
+          <div class="rc-row"><span class="rc-key">Online Bookings</span><span class="rc-val" style="color:var(--blue)" id="r-online">0</span></div>
+          <div class="rc-row"><span class="rc-key">Cancellations</span><span class="rc-val" style="color:var(--red)" id="r-cancel">0</span></div>
+          <div class="rc-row"><span class="rc-key">60 min sessions</span><span class="rc-val orange" id="r-60">0</span></div>
+          <div class="rc-row"><span class="rc-key">90 min sessions</span><span class="rc-val orange" id="r-90">0</span></div>
+          <div class="rc-row"><span class="rc-key">120 min sessions</span><span class="rc-val orange" id="r-120">0</span></div>
+        </div>
+        <div class="report-card">
+          <div class="rc-title">Peak Hours</div>
+          <div id="peak-hours-list"></div>
+        </div>
+      </div>
+      <div class="report-card">
+        <div class="rc-title">Payment Breakdown</div>
+        <div id="payment-breakdown-list"></div>
+      </div>
+      <div class="report-card">
+        <div class="rc-title">Top Booker of the Month</div>
+        <div id="top-bookers-list"></div>
+      </div>
+      <div class="report-card" style="margin-bottom:20px">
+        <div class="rc-title">Bookings This Week</div>
+        <div class="mini-chart" id="week-chart"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ═══════ NEW BOOKING MODAL ═══════ -->
+<div class="modal-overlay" id="booking-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-head-title">Manual Booking</div>
+      <button class="modal-close" onclick="closeBookingModal()">✕</button>
+    </div>
+    <div class="modal-steps" id="bm-steps"></div>
+    <div class="modal-body" id="bm-body"></div>
+    <div class="modal-foot" id="bm-foot"></div>
+  </div>
+</div>
+
+<!-- ═══════ PAY METHOD MODAL ═══════ -->
+<div class="modal-overlay" id="pay-modal">
+  <div class="cancel-modal">
+    <div class="cm-title">Mark as Paid</div>
+    <div class="cm-sub">Select payment method and enter amount</div>
+    <div class="pay-method-grid">
+      <button class="pay-method-btn" id="pm-cash" onclick="selectPayMethod('cash')">
+        <div style="font-size:24px;margin-bottom:6px">💵</div>
+        <div style="font-weight:600;font-size:13px;color:var(--ink)">Cash</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:3px">Physical</div>
+      </button>
+      <button class="pay-method-btn" id="pm-visa" onclick="selectPayMethod('visa')">
+        <div style="font-size:24px;margin-bottom:6px">💳</div>
+        <div style="font-weight:600;font-size:13px;color:var(--ink)">Visa</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:3px">Card</div>
+      </button>
+      <button class="pay-method-btn" id="pm-cliq" onclick="selectPayMethod('cliq')">
+        <div style="font-size:24px;margin-bottom:6px">📱</div>
+        <div style="font-weight:600;font-size:13px;color:var(--ink)">CliQ</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:3px">Transfer</div>
+      </button>
+    </div>
+    <div style="margin-top:16px">
+      <div class="f-label" style="margin-bottom:8px">Amount Paid (JOD)</div>
+      <input class="f-input" id="pay-amount" type="number" min="0" step="0.5" placeholder="0.00" oninput="checkPayForm()" />
+    </div>
+    <button class="confirm-cancel-btn" id="pay-confirm-btn" onclick="confirmPayment()" disabled style="background:var(--green);margin-top:16px">Confirm Payment</button>
+    <button class="cancel-close-btn" onclick="closePayModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- ═══════ CANCEL MODAL ═══════ -->
+<div class="modal-overlay" id="cancel-modal">
+  <div class="cancel-modal">
+    <div class="cm-title">Cancel Booking</div>
+    <div class="cm-sub" id="cm-booking-info">Cancelling this booking.</div>
+    <div class="m-sec-label" style="margin-bottom:10px">Reason for cancellation</div>
+    <div class="reason-grid" id="reason-grid"></div>
+    <button class="confirm-cancel-btn" id="confirm-cancel-btn" onclick="confirmCancel()" disabled>Confirm Cancellation</button>
+    <button class="cancel-close-btn" onclick="closeCancelModal()">Keep Booking</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════
+// STATE
+// ═══════════════════════════════
+const PASSCODE = '1234';
+const SUPABASE_URL = 'https://ihwuhfhpqgbjzxxatlrh.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlod3VoZmhwcWdianp4eGF0bHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NzQ3MzEsImV4cCI6MjA5NDQ1MDczMX0.LFYkJI4kuO1Obqc7MHTRWCmRguOPu9uUH9q3F5-cbRc';
+const SB_HEADERS = { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY };
+const COURTS_KEY = 'tropico_courts_v2';
+
+let state = {
+  branch: null,
+  currentPanel: 'dashboard',
+  bookingFilter: 'all',
+  cancelTarget: null,
+  cancelReason: null,
+  bm: { step: 1, court: null, duration: null, time: null, name: '', phone: '', payment: 'cash' }
+};
+
+// ═══════════════════════════════
+// COURTS CONFIG
+// ═══════════════════════════════
+const COURTS_CONFIG = {
+  og: ['Court 1 (1v1)', 'Court 2 (2v2)', 'Court 3 (2v2)', 'Court 4 (2v2)'],
+  hide: ['Court 1 (2v2)', 'Court 2 (2v2)', 'Court 3 (2v2)']
+};
+
+// ═══════════════════════════════
+// STORAGE HELPERS
+// ═══════════════════════════════
+async function getBookings() {
+  try {
+    const res = await fetch(SUPABASE_URL + '/rest/v1/bookings?order=created_at.desc', { headers: SB_HEADERS });
+    if (res.ok) return await res.json();
+    return [];
+  } catch { return []; }
+}
+
+async function saveBookingToDB(booking) {
+  try {
+    const res = await fetch(SUPABASE_URL + '/rest/v1/bookings', {
+      method: 'POST', headers: { ...SB_HEADERS, 'Prefer': 'return=representation' },
+      body: JSON.stringify(booking)
+    });
+    return res.ok;
+  } catch { return false; }
+}
+
+async function updateBookingInDB(id, updates) {
+  try {
+    const res = await fetch(SUPABASE_URL + '/rest/v1/bookings?id=eq.' + id, {
+      method: 'PATCH', headers: { ...SB_HEADERS, 'Prefer': 'return=minimal' },
+      body: JSON.stringify(updates)
+    });
+    return res.ok;
+  } catch { return false; }
+}
+
+function getCourts() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(COURTS_KEY));
+    if (stored) return stored;
+  } catch {}
+  // default: all available
+  const courts = {};
+  ['og','hide'].forEach(b => {
+    COURTS_CONFIG[b].forEach((name, i) => {
+      courts[`${b}-${i}`] = { name, status: 'available' };
+    });
+  });
+  return courts;
+}
+
+function saveCourts(courts) {
+  localStorage.setItem(COURTS_KEY, JSON.stringify(courts));
+}
+
+// ═══════════════════════════════
+// LOGIN
+// ═══════════════════════════════
+let passcodeInput = '';
+let loginBranch = null;
+
+function selectLoginBranch(branch) {
+  loginBranch = branch;
+  document.getElementById('login-og').className = 'branch-pick-btn' + (branch==='og'?' sel-og':'');
+  document.getElementById('login-hide').className = 'branch-pick-btn' + (branch==='hide'?' sel-hide':'');
+  passcodeInput = '';
+  updateDots();
+}
+
+function keyPress(k) {
+  if (!loginBranch) { flashError('Please select a branch first'); return; }
+  if (passcodeInput.length >= 4) return;
+  passcodeInput += k;
+  updateDots();
+  if (passcodeInput.length === 4) setTimeout(checkPasscode, 200);
+}
+
+function delKey() { passcodeInput = passcodeInput.slice(0,-1); updateDots(); }
+function clearCode() { passcodeInput = ''; updateDots(); }
+
+function updateDots() {
+  for (let i=0;i<4;i++) {
+    const d = document.getElementById('pd'+i);
+    d.className = 'pdot' + (i < passcodeInput.length ? (loginBranch==='hide' ? ' filled hide' : ' filled') : '');
+  }
+}
+
+function checkPasscode() {
+  if (passcodeInput === PASSCODE) {
+    state.branch = loginBranch;
+    enterAdmin();
+  } else {
+    flashError('Incorrect passcode. Try again.');
+    passcodeInput = ''; updateDots();
+  }
+}
+
+function flashError(msg) {
+  const el = document.getElementById('login-error');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+function enterAdmin() {
+  document.getElementById('login-screen').style.display = 'none';
+  const layout = document.getElementById('admin-layout');
+  layout.classList.add('active');
+
+  // Set branch label
+  const label = document.getElementById('sb-branch-label');
+  const isHide = state.branch === 'hide';
+  label.className = 'sb-branch ' + state.branch;
+  label.innerHTML = `<span class="dot"></span> ${isHide ? 'Hideaway Branch' : 'OG Branch'}`;
+
+  // Style add button
+  const addBtn = document.getElementById('add-btn');
+  if (isHide) addBtn.classList.add('hide-btn');
+
+  // Style nav items
+  document.querySelectorAll('.nav-item.active').forEach(el => {
+    if (isHide) el.classList.add('hide-branch');
+  });
+
+  // Update date
+  document.getElementById('topbar-date').textContent = new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+
+  refreshAll();
+}
+
+function logout() {
+  if (!confirm('Log out of admin panel?')) return;
+  state.branch = null;
+  passcodeInput = ''; loginBranch = null;
+  updateDots();
+  document.getElementById('login-og').className = 'branch-pick-btn';
+  document.getElementById('login-hide').className = 'branch-pick-btn';
+  document.getElementById('admin-layout').classList.remove('active');
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+// ═══════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════
+function switchPanel(panel) {
+  state.currentPanel = panel;
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + panel).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    n.classList.remove('active','hide-branch');
+    if (n.dataset.panel === panel) {
+      n.classList.add('active');
+      if (state.branch === 'hide') n.classList.add('hide-branch');
+    }
+  });
+
+  const titles = { dashboard:'Dashboard', bookings:'All Bookings', courts:'Court Status', reports:'Monthly Reports' };
+  document.getElementById('topbar-title').textContent = titles[panel] || 'Admin';
+
+  if (panel === 'reports') renderReports();
+  if (panel === 'bookings') renderBookings();
+  if (panel === 'courts') renderCourtsPanel();
+
+  closeSidebar();
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('mob-overlay').classList.toggle('show');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('mob-overlay').classList.remove('show');
+}
+
+// ═══════════════════════════════
+// DATA HELPERS
+// ═══════════════════════════════
+function todayStr() {
+  return new Date().toISOString().split('T')[0];
+}
+
+// ═══════════════════════════════
+// REFRESH ALL
+// ═══════════════════════════════
+async function refreshAll() {
+  updateStats();
+  renderDashCourts();
+  renderDashBookings();
+  if (state.currentPanel === 'bookings') renderBookings();
+  if (state.currentPanel === 'courts') renderCourtsPanel();
+  if (state.currentPanel === 'reports') renderReports();
+}
+
+// ═══════════════════════════════
+// STATS
+// ═══════════════════════════════
+async function updateStats() {
+  const allBookings = await getBookings();
+  const today = allBookings.filter(b => b.branch === state.branch && b.date === todayStr() );
+  const pending = allBookings.filter(b => b.branch === state.branch && b.status === 'pending');
+  const active = today.filter(b => b.status === 'confirmed');
+  document.getElementById('stat-today').textContent = active.length;
+  document.getElementById('stat-cash').textContent = active.filter(b => b.payment === 'cash').length;
+  document.getElementById('stat-online').textContent = active.filter(b => b.payment === 'online').length;
+  document.getElementById('stat-cancelled').textContent = today.filter(b => b.status === 'cancelled').length;
+  document.getElementById('today-badge').textContent = pending.length || active.length;
+  // highlight pending badge
+  const badge = document.getElementById('today-badge');
+  if (pending.length) {
+    badge.textContent = pending.length + ' pending';
+    badge.style.background = '#B45309';
+  } else {
+    badge.textContent = active.length;
+    badge.style.background = '';
+  }
+}
+
+// ═══════════════════════════════
+// COURTS RENDERING
+// ═══════════════════════════════
+function timeToMins(t) {
+  const [h, m] = t.split(':').map(Number);
+  return (h < 10 ? h + 24 : h) * 60 + (m || 0);
+}
+
+function buildSlotTimeline(courtBookings, isManuallyBusy) {
+  const slots = genSlots();
+  const slotStatus = {};
+  courtBookings.forEach(b => {
+    const start = timeToMins(b.time);
+    const n = (b.duration || 60) / 30;
+    for (let i = 0; i < n; i++) {
+      const mins = start + i * 30;
+      const h = Math.floor(mins / 60) % 24;
+      const m = mins % 60;
+      const key = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+      const st = b.status === 'confirmed' ? 'booked' : 'pending';
+      if (!slotStatus[key] || st === 'booked') slotStatus[key] = st;
+    }
+  });
+  const labels = { available:'Free', pending:'Pending', booked:'Booked', busy:'Busy' };
+  const chips = slots.map(s => {
+    const st = slotStatus[s] || (isManuallyBusy ? 'busy' : 'available');
+    return `<div class="slot-chip ${st}"><div>${s}</div><div class="slot-chip-label">${labels[st]}</div></div>`;
+  }).join('');
+  return `
+    <div class="slot-legend">
+      <div class="sl-item"><div class="sl-dot" style="background:#d4edda"></div>Available</div>
+      <div class="sl-item"><div class="sl-dot" style="background:rgba(232,105,43,0.4)"></div>Pending</div>
+      <div class="sl-item"><div class="sl-dot" style="background:rgba(192,57,43,0.4)"></div>Booked</div>
+      <div class="sl-item"><div class="sl-dot" style="background:#e2e3e5"></div>Busy</div>
+    </div>
+    <div class="slot-timeline">${chips}</div>`;
+}
+
+function toggleCourtDetail(id, headerEl) {
+  const el = document.getElementById(id);
+  const arrow = headerEl.querySelector('.cdc-expand');
+  const open = el.classList.toggle('open');
+  if (arrow) arrow.classList.toggle('open', open);
+}
+
+function courtIsActiveNow(courtBk) {
+  return courtBk.some(b => b.status === 'confirmed' || b.status === 'pending');
+}
+
+function courtStatusLabel(courtBk, manualBusy) {
+  if (manualBusy) return 'Busy';
+  if (courtBk.some(b => b.status === 'confirmed')) return 'Booked';
+  if (courtBk.some(b => b.status === 'pending')) return 'Pending';
+  return 'Available';
+}
+
+function renderCourtsGrid(containerId, todayBookings = []) {
+  const courts = getCourts();
+  const courtNames = COURTS_CONFIG[state.branch];
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = '';
+
+  courtNames.forEach((name, i) => {
+    const key = `${state.branch}-${i}`;
+    const c = courts[key] || { name, status: 'available' };
+    const manualBusy = c.status === 'busy';
+    const courtBk = todayBookings.filter(b => b.court === name);
+    const bookedNow = courtIsActiveNow(courtBk);
+    const effectiveBusy = manualBusy || bookedNow;
+    const statusLabel = courtStatusLabel(courtBk, manualBusy);
+
+    const card = document.createElement('div');
+    card.className = 'court-status-card' + (effectiveBusy ? ' busy-card' : '');
+    card.innerHTML = `
+      <div class="csc-top">
+        <div class="csc-name">${name}</div>
+        <div class="csc-num">COURT ${String(i+1).padStart(2,'0')}</div>
+      </div>
+      <div class="csc-status ${effectiveBusy ? 'busy' : 'available'}">
+        <div class="csc-dot"></div>
+        ${statusLabel}
+      </div>
+      <button class="toggle-busy-btn" onclick="toggleCourtBusy('${key}','${containerId}')">
+        ${manualBusy ? '✓ Mark Available' : 'Mark as Busy'}
+      </button>
+    `;
+    container.appendChild(card);
+  });
+}
+
+async function renderDashCourts() {
+  const allBookings = await getBookings();
+  const todayBk = allBookings.filter(b =>
+    b.branch === state.branch && b.date === todayStr() && b.status !== 'cancelled'
+  );
+  renderCourtsGrid('dash-courts-grid', todayBk);
+}
+
+async function renderCourtsPanel() {
+  const container = document.getElementById('courts-grid');
+  container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted)">Loading...</div>';
+  const allBookings = await getBookings();
+  const todayBk = allBookings.filter(b =>
+    b.branch === state.branch && b.date === todayStr() && b.status !== 'cancelled'
+  );
+  const courts = getCourts();
+  const courtNames = COURTS_CONFIG[state.branch];
+  container.innerHTML = '';
+  courtNames.forEach((name, i) => {
+    const key = `${state.branch}-${i}`;
+    const c = courts[key] || { name, status: 'available' };
+    const manualBusy = c.status === 'busy';
+    const courtBk = todayBk.filter(b => b.court === name);
+    const bookedNow = courtIsActiveNow(courtBk);
+    const effectiveBusy = manualBusy || bookedNow;
+    const statusLabel = courtStatusLabel(courtBk, manualBusy);
+    const card = document.createElement('div');
+    card.className = 'court-detail-card' + (effectiveBusy ? ' busy-card' : '');
+    card.innerHTML = `
+      <div class="cdc-header" onclick="toggleCourtDetail('cdc-${i}',this)">
+        <div>
+          <div class="csc-name">${name}</div>
+          <div class="csc-num">COURT ${String(i+1).padStart(2,'0')}</div>
+        </div>
+        <div class="cdc-right">
+          <div class="csc-status ${effectiveBusy?'busy':'available'}">
+            <div class="csc-dot"></div>${statusLabel}
+          </div>
+          <button class="toggle-busy-btn" onclick="event.stopPropagation();toggleCourtBusy('${key}','courts-grid')">
+            ${manualBusy?'✓ Mark Available':'Mark Busy'}
+          </button>
+          <span class="cdc-expand">▾</span>
+        </div>
+      </div>
+      <div class="cdc-slots" id="cdc-${i}">${buildSlotTimeline(courtBk, manualBusy)}</div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+async function toggleCourtBusy(key, containerId) {
+  const courts = getCourts();
+  courts[key] = courts[key] || { status: 'available' };
+  const newStatus = courts[key].status === 'busy' ? 'available' : 'busy';
+  courts[key].status = newStatus;
+  saveCourts(courts);
+
+  const parts = key.split('-');
+  const branch = parts.slice(0, -1).join('-');
+  const idx = parseInt(parts[parts.length - 1]);
+  const courtName = (COURTS_CONFIG[branch] || [])[idx];
+
+  if (courtName) {
+    const courtKey = branch + '-' + idx;
+    console.log('[toggleCourtBusy] key:', key, '| courtKey:', courtKey, '| courtName:', courtName, '| newStatus:', newStatus);
+    if (newStatus === 'busy') {
+      // DELETE old row first
+      const delRes = await fetch(SUPABASE_URL + '/rest/v1/court_status?court_key=eq.' + courtKey, {
+        method: 'DELETE',
+        headers: SB_HEADERS
+      }).catch(e => { console.error('[toggleCourtBusy] DELETE court_status error:', e); return null; });
+      console.log('[toggleCourtBusy] DELETE court_status status:', delRes ? delRes.status : 'fetch failed');
+
+      // INSERT busy row
+      const payload = { court_key: courtKey, branch, court_name: courtName, status: 'busy', updated_at: new Date().toISOString() };
+      console.log('[toggleCourtBusy] POST court_status payload:', JSON.stringify(payload));
+      const postRes = await fetch(SUPABASE_URL + '/rest/v1/court_status', {
+        method: 'POST',
+        headers: { ...SB_HEADERS, 'Prefer': 'return=representation' },
+        body: JSON.stringify(payload)
+      }).catch(e => { console.error('[toggleCourtBusy] POST court_status error:', e); return null; });
+      if (postRes) {
+        const postText = await postRes.text();
+        console.log('[toggleCourtBusy] POST court_status status:', postRes.status, '| body:', postText);
+      }
+
+      // Insert sentinel booking as fallback
+      const bkPayload = { branch, court: courtName, name: '__COURT_BLOCKED__', phone: '0', status: 'blocked', date: '2099-12-31', time: '00:00', duration: 0, source: 'admin_block', payment: 'cash', paid: false, created_at: new Date().toISOString() };
+      const bkRes = await fetch(SUPABASE_URL + '/rest/v1/bookings', {
+        method: 'POST',
+        headers: { ...SB_HEADERS, 'Prefer': 'return=minimal' },
+        body: JSON.stringify(bkPayload)
+      }).catch(e => { console.error('[toggleCourtBusy] POST bookings error:', e); return null; });
+      console.log('[toggleCourtBusy] POST bookings (sentinel) status:', bkRes ? bkRes.status : 'fetch failed');
+    } else {
+      // Delete busy status from court_status table
+      const delRes = await fetch(SUPABASE_URL + '/rest/v1/court_status?court_key=eq.' + courtKey, {
+        method: 'DELETE',
+        headers: SB_HEADERS
+      }).catch(e => { console.error('[toggleCourtBusy] DELETE court_status (available) error:', e); return null; });
+      console.log('[toggleCourtBusy] DELETE court_status (mark available) status:', delRes ? delRes.status : 'fetch failed');
+
+      // Delete all sentinel bookings for this court
+      const delBkRes = await fetch(
+        SUPABASE_URL + '/rest/v1/bookings?branch=eq.' + branch
+          + '&court=eq.' + encodeURIComponent(courtName)
+          + '&source=eq.admin_block',
+        { method: 'DELETE', headers: SB_HEADERS }
+      ).catch(e => { console.error('[toggleCourtBusy] DELETE bookings error:', e); return null; });
+      console.log('[toggleCourtBusy] DELETE bookings (sentinel) status:', delBkRes ? delBkRes.status : 'fetch failed');
+    }
+  }
+
+  renderDashCourts();
+  if (containerId === 'courts-grid') renderCourtsPanel();
+}
+
+// ═══════════════════════════════
+// BOOKINGS RENDERING
+// ═══════════════════════════════
+function buildWhatsAppLink(b) {
+  let phone = b.phone.replace(/\D/g,'');
+  if (phone.startsWith('0')) phone = '962' + phone.slice(1);
+  const branchName = b.branch === 'og' ? 'OG Branch 🍊' : 'Hideaway Branch 🌿';
+  const endTime = (() => {
+    if (!b.time) return '';
+    const [h,m] = b.time.split(':').map(Number);
+    const total = h*60 + (m||0) + (b.duration||60);
+    return String(Math.floor(total/60)%24).padStart(2,'0') + ':' + String(total%60).padStart(2,'0');
+  })();
+  const msg = encodeURIComponent(
+    `Hi ${b.name},\nYour court is waiting for your confirmation:\n🎾 ${b.court}\n📍 ${branchName}\n📅 ${b.date || 'Today'}\n⏰ ${b.time} - ${endTime} (${b.duration} min)\n💳 Payment: Cash, Visa or Cliq at club\n\nCan you please confirm your booking? 🙏\n— Tropico 🎾`
+  );
+  return `https://api.whatsapp.com/send?phone=${phone}&text=${msg}`;
+}
+
+function buildWhatsAppDeclineLink(b) {
+  let phone = b.phone.replace(/\D/g,'');
+  if (phone.startsWith('0')) phone = '962' + phone.slice(1);
+  const msg = encodeURIComponent(
+    `Hi ${b.name}, unfortunately your booking request for ${b.court} at ${b.time} could not be confirmed at this time. Please contact us to reschedule.\n— Tropico`
+  );
+  return `https://wa.me/${phone}?text=${msg}`;
+}
+
+function buildWhatsAppPendingLink(b) {
+  return buildWhatsAppLink(b);
+}
+
+function renderPendingCard(b, container) {
+  const card = document.createElement('div');
+  card.className = 'pending-card';
+  card.id = 'pending-' + b.id;
+  const branchLabel = b.branch === 'og' ? 'OG Branch' : 'Hideaway Branch';
+  card.innerHTML = `
+    <div class="pending-header">
+      <div class="pending-badge">⏳ Pending Confirmation</div>
+      <div class="pending-time-ago">${timeAgo(b.created_at)}</div>
+    </div>
+    <div class="pending-main">
+      <div class="pending-name">${b.name}</div>
+      <div class="pending-details">
+        wants to book <strong>${b.court}</strong> · ${branchLabel}<br>
+        <strong>${b.time}</strong> · ${b.duration} min · ${b.payment === 'cash' ? '💵 Cash' : '💳 Online'}
+      </div>
+    </div>
+    <div class="pending-actions">
+      <button class="pact-btn confirm-pact" onclick="confirmBookingRequest('${b.id}')" title="Confirm">✅</button>
+      <button class="pact-btn decline-pact" onclick="declineBookingRequest('${b.id}')" title="Decline">❌</button>
+      <a class="pact-btn wa-pact" href="${buildWhatsAppPendingLink(b)}" target="_blank" title="WhatsApp">💬</a>
+    </div>
+  `;
+  container.appendChild(card);
+}
+
+function renderBookingRow(b, container) {
+  const row = document.createElement('div');
+
+  if (b.status === 'pending') {
+    renderPendingCard(b, container);
+    return;
+  }
+
+  row.className = 'booking-row' + (b.status === 'cancelled' ? ' cancelled' : '');
+  const payMethodMap = { cash: { cls: 'cash', label: '💵 Cash' }, visa: { cls: 'online', label: '💳 Visa' }, cliq: { cls: 'online', label: '📱 CliQ' }, online: { cls: 'online', label: '💳 Online' } };
+  const { cls: payClass, label: payLabel } = payMethodMap[b.payment] || { cls: 'cash', label: '💵 Cash' };
+
+  let actionsHTML = '';
+  if (b.status === 'cancelled') {
+    actionsHTML = `<span class="cancelled-reason">❌ ${b.cancel_reason||'Cancelled'}</span>`;
+  } else {
+    const paidLabel = { cash: 'Cash', visa: 'Visa', cliq: 'CliQ', online: 'Online' }[b.payment] || 'Paid';
+    const paidBtn = !b.paid
+      ? `<button class="action-btn paid-btn" onclick="markPaid('${b.id}')">✓ Paid</button>`
+      : `<span class="paid-label">✓ ${paidLabel}</span>`;
+    const waBtn = `<a class="action-btn wa-btn" href="${buildWhatsAppLink(b)}" target="_blank">💬</a>`;
+    const cancelBtn = `<button class="action-btn cancel-btn" onclick="openCancelModal('${b.id}','${b.name}','${b.time}')">✕ Cancel</button>`;
+    actionsHTML = paidBtn + waBtn + cancelBtn;
+  }
+
+  row.innerHTML = `
+    <div class="booking-row-top">
+      <div class="br-name">${b.name}</div>
+      <div class="br-phone">${b.phone}</div>
+    </div>
+    <div class="booking-row-mid">
+      <div class="br-court">${b.court}</div>
+      <div class="br-time">${b.time}</div>
+      <div class="br-dur">${b.duration}m</div>
+      <div><span class="pay-badge ${payClass}">${payLabel}</span></div>
+    </div>
+    <div class="booking-row-bot br-actions">${actionsHTML}</div>
+  `;
+  container.appendChild(row);
+}
+
+async function renderDashBookings() {
+  const container = document.getElementById('dash-bookings-list');
+  container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted)">Loading...</div>';
+  const allBookings = await getBookings();
+  container.innerHTML = '';
+  const pending = allBookings.filter(b => b.branch === state.branch && b.status === 'pending');
+  const today = allBookings.filter(b => b.branch === state.branch && b.date === todayStr() && b.status !== 'pending');
+
+  if (!pending.length && !today.length) {
+    container.innerHTML = '<div class="empty-bookings"><div class="empty-icon">📅</div>No bookings today yet.</div>';
+    return;
+  }
+
+  if (pending.length) {
+    const pendingSection = document.createElement('div');
+    pendingSection.className = 'pending-section';
+    pendingSection.innerHTML = `<div class="pending-section-label">⏳ Awaiting Your Confirmation (${pending.length})</div>`;
+    pending.forEach(b => renderPendingCard(b, pendingSection));
+    container.appendChild(pendingSection);
+  }
+
+  if (today.length) {
+    today.sort((a,b) => a.time.localeCompare(b.time));
+    const tableWrap = document.createElement('div');
+    tableWrap.innerHTML = `<div class="table-sub-label" style="margin:16px 0 8px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)">Today's Confirmed Bookings</div>`;
+    today.forEach(b => renderBookingRow(b, tableWrap));
+    container.appendChild(tableWrap);
+  }
+}
+
+let activeFilter = 'all';
+function filterBookings(filter) {
+  activeFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active-filter','hf'));
+  const el = document.getElementById('f-'+filter);
+  if (el) {
+    el.classList.add('active-filter');
+    if (state.branch === 'hide') el.classList.add('hf');
+  }
+  renderBookings();
+}
+
+async function renderBookings() {
+  const container = document.getElementById('all-bookings-list');
+  container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted)">Loading...</div>';
+  const search = document.getElementById('booking-search')?.value.toLowerCase() || '';
+  const allBookings = await getBookings();
+  let list = allBookings.filter(b => b.branch === state.branch && b.source !== 'admin_block');
+
+  if (activeFilter === 'today') list = list.filter(b => b.date === todayStr() && b.status !== 'pending');
+  else if (activeFilter === 'upcoming') list = list.filter(b => b.date > todayStr() && b.status !== 'pending');
+  else if (activeFilter === 'cancelled') list = list.filter(b => b.status === 'cancelled');
+  else if (activeFilter === 'pending') list = list.filter(b => b.status === 'pending');
+  else list = list.filter(b => b.status !== 'pending'); // 'all' excludes pending (they're in dashboard)
+
+  if (search) list = list.filter(b => b.name.toLowerCase().includes(search) || b.phone.includes(search));
+
+  list.sort((a,b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
+
+  if (!list.length) {
+    container.innerHTML = '<div class="empty-bookings"><div class="empty-icon">🔍</div>No bookings found.</div>';
+    return;
+  }
+  list.forEach(b => renderBookingRow(b, container));
+}
+
+// ═══════════════════════════════
+// PENDING ACTIONS
+// ═══════════════════════════════
+async function confirmBookingRequest(id) {
+  await updateBookingInDB(id, { status: 'confirmed' });
+  refreshAll();
+}
+
+async function declineBookingRequest(id) {
+  const allBookings = await getBookings();
+  const b = allBookings.find(bk => bk.id === id);
+  if (!b) return;
+  openCancelModal(id, b.name, b.time);
+}
+
+// ═══════════════════════════════
+// MARK PAID
+// ═══════════════════════════════
+let payTarget = null;
+let selectedPayMethod = null;
+
+function markPaid(id) {
+  payTarget = id;
+  selectedPayMethod = null;
+  // Reset modal state
+  ['cash','visa','cliq'].forEach(m => {
+    const btn = document.getElementById('pm-' + m);
+    if (btn) { btn.style.borderColor = ''; btn.style.background = ''; }
+  });
+  const amountEl = document.getElementById('pay-amount');
+  if (amountEl) amountEl.value = '';
+  const confirmBtn = document.getElementById('pay-confirm-btn');
+  if (confirmBtn) confirmBtn.disabled = true;
+  document.getElementById('pay-modal').style.display = 'flex';
+}
+
+function selectPayMethod(method) {
+  selectedPayMethod = method;
+  ['cash','visa','cliq'].forEach(m => {
+    const btn = document.getElementById('pm-' + m);
+    if (!btn) return;
+    if (m === method) {
+      btn.style.borderColor = 'var(--green)';
+      btn.style.background = 'var(--green-soft)';
+    } else {
+      btn.style.borderColor = '';
+      btn.style.background = '';
+    }
+  });
+  checkPayForm();
+}
+
+function checkPayForm() {
+  const amountEl = document.getElementById('pay-amount');
+  const confirmBtn = document.getElementById('pay-confirm-btn');
+  if (!confirmBtn) return;
+  const hasAmount = amountEl && amountEl.value !== '' && parseFloat(amountEl.value) >= 0;
+  confirmBtn.disabled = !(selectedPayMethod && hasAmount);
+}
+
+function closePayModal() {
+  document.getElementById('pay-modal').style.display = 'none';
+  payTarget = null;
+  selectedPayMethod = null;
+}
+
+async function confirmPayment() {
+  if (!payTarget || !selectedPayMethod) return;
+  const amountEl = document.getElementById('pay-amount');
+  const amount = amountEl ? parseFloat(amountEl.value) || 0 : 0;
+  await updateBookingInDB(payTarget, { paid: true, payment: selectedPayMethod, amount });
+  closePayModal();
+  refreshAll();
+}
+
+// ═══════════════════════════════
+// CANCEL BOOKING
+// ═══════════════════════════════
+const CANCEL_REASONS = ['Customer Request', 'No Show', 'Court Issue', 'Duplicate', 'Weather', 'Other'];
+
+function openCancelModal(id, name, time) {
+  state.cancelTarget = id;
+  state.cancelReason = null;
+  document.getElementById('cm-booking-info').textContent = `Cancelling ${name}'s booking at ${time}`;
+  const grid = document.getElementById('reason-grid');
+  grid.innerHTML = '';
+  CANCEL_REASONS.forEach(r => {
+    const btn = document.createElement('button');
+    btn.className = 'reason-btn';
+    btn.textContent = r;
+    btn.onclick = () => {
+      document.querySelectorAll('#reason-grid .reason-btn').forEach(b => b.classList.remove('sel'));
+      btn.classList.add('sel');
+      state.cancelReason = r;
+      document.getElementById('confirm-cancel-btn').disabled = false;
+    };
+    grid.appendChild(btn);
+  });
+  document.getElementById('confirm-cancel-btn').disabled = true;
+  document.getElementById('cancel-modal').style.display = 'flex';
+}
+
+function closeCancelModal() {
+  document.getElementById('cancel-modal').style.display = 'none';
+  state.cancelTarget = null;
+  state.cancelReason = null;
+}
+
+async function confirmCancel() {
+  if (!state.cancelTarget || !state.cancelReason) return;
+  await updateBookingInDB(state.cancelTarget, { status: 'cancelled', cancel_reason: state.cancelReason });
+  closeCancelModal();
+  refreshAll();
+}
+
+// ═══════════════════════════════
+// TIME AGO HELPER
+// ═══════════════════════════════
+function timeAgo(iso) {
+  if (!iso) return '';
+  const diff = (Date.now() - new Date(iso)) / 1000;
+  if (diff < 60) return 'Just now';
+  if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+  if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+  return Math.floor(diff/86400) + 'd ago';
+}
+
+// ═══════════════════════════════
+// NEW BOOKING MODAL
+// ═══════════════════════════════
+function openNewBooking() {
+  state.bm = { step:1, court:null, duration:null, time:null, name:'', phone:'', payment:'cash' };
+  renderBookingModal();
+  document.getElementById('booking-modal').classList.add('open');
+  closeSidebar();
+}
+
+function closeBookingModal() {
+  document.getElementById('booking-modal').classList.remove('open');
+}
+
+function genSlots() {
+  const s=[];
+  for(let h=10;h<24;h++){s.push(h+':00');s.push(h+':30');}
+  for(let h=0;h<=2;h++){s.push(String(h).padStart(2,'0')+':00');if(h<3)s.push(String(h).padStart(2,'0')+':30');}
+  return s;
+}
+
+function renderBookingModal() {
+  const isH = state.branch === 'hide';
+  const sc = isH ? 'hb' : '';
+  const so = isH ? 'sel-hide' : 'sel-og';
+  const bm = state.bm;
+
+  // Steps
+  const steps = ['Court & Duration','Time Slot','Details'];
+  document.getElementById('bm-steps').innerHTML = steps.map((s,i) => {
+    const n = i+1;
+    const cls = n === bm.step ? 'act '+sc : n < bm.step ? 'dn' : '';
+    return `<div class="ms-item ${cls}">
+      <div class="ms-num"><span>${n}</span></div>
+      <div class="ms-label">${s}</div>
+    </div>${i < steps.length-1 ? '<div class="ms-conn"></div>' : ''}`;
+  }).join('');
+
+  const body = document.getElementById('bm-body');
+  const foot = document.getElementById('bm-foot');
+  const courts = COURTS_CONFIG[state.branch];
+
+  if (bm.step === 1) {
+    body.innerHTML = `
+      <div class="m-sec-label">Select Court</div>
+      <div class="court-picker">
+        ${courts.map((c,i) => `
+          <div class="cp-opt ${bm.court===i?so:''}" onclick="bmSelectCourt(${i})">${c}</div>
+        `).join('')}
+      </div>
+      <div class="m-sec-label" style="margin-top:16px">Duration</div>
+      <div class="dur-grid">
+        ${[60,90,120].map(d => `
+          <div class="dur-opt ${bm.duration===d?so:''}" onclick="bmSelectDur(${d})">
+            <div class="dur-num">${d}</div>
+            <div class="dur-unit">Min</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    foot.innerHTML = `
+      <div></div>
+      <button class="m-next ${sc}" ${!bm.court!==null&&bm.duration?'':'disabled'} onclick="bmNext()">Continue →</button>
+    `;
+    // fix initial disabled state
+    setTimeout(() => {
+      const btn = foot.querySelector('.m-next');
+      if (btn) btn.disabled = !(bm.court !== null && bm.duration);
+    }, 0);
+
+  } else if (bm.step === 2) {
+    const slots = genSlots();
+    body.innerHTML = `
+      <div class="m-sec-label">Select Start Time</div>
+      <div class="time-grid">
+        ${slots.map(s => `
+          <div class="t-slot ${bm.time===s?so:''}" onclick="bmSelectTime('${s}')">${s}</div>
+        `).join('')}
+      </div>
+    `;
+    foot.innerHTML = `
+      <button class="m-back" onclick="bmBack()">← Back</button>
+      <button class="m-next ${sc}" ${!bm.time?'disabled':''} onclick="bmNext()">Continue →</button>
+    `;
+
+  } else if (bm.step === 3) {
+    body.innerHTML = `
+      <div class="form-grid">
+        <div class="form-col">
+          <label class="f-label">Full Name</label>
+          <input class="f-input" id="bm-name" value="${bm.name}" placeholder="Customer name" oninput="bmCheckForm()" />
+        </div>
+        <div class="form-col">
+          <label class="f-label">WhatsApp Number</label>
+          <input class="f-input" id="bm-phone" value="${bm.phone}" placeholder="+962 7X XXX XXXX" oninput="bmCheckForm()" />
+        </div>
+      </div>
+      <div class="m-sec-label">Payment Method</div>
+      <div class="pay-row">
+        <div class="pay-opt ${bm.payment==='cash'?so:''}" onclick="bmSelPay('cash')">
+          <span class="emoji">💵</span>
+          <div><div style="font-size:13px;font-weight:500;color:var(--ink)">Cash</div><div style="font-size:10px;color:var(--muted)">Pay at club</div></div>
+        </div>
+        <div class="pay-opt ${bm.payment==='online'?so:''}" onclick="bmSelPay('online')">
+          <span class="emoji">💳</span>
+          <div><div style="font-size:13px;font-weight:500;color:var(--ink)">Online</div><div style="font-size:10px;color:var(--muted)">Paid at booking</div></div>
+        </div>
+      </div>
+      <div class="m-sec-label" style="margin-top:14px">Date</div>
+      <input class="f-input" id="bm-date" type="date" value="${todayStr()}" />
+    `;
+    foot.innerHTML = `
+      <button class="m-back" onclick="bmBack()">← Back</button>
+      <button class="m-next ${sc}" id="bm-confirm" disabled onclick="bmConfirm()">Confirm Booking</button>
+    `;
+    setTimeout(bmCheckForm, 0);
+  }
+}
+
+function bmSelectCourt(i) {
+  state.bm.court = i;
+  renderBookingModal();
+}
+function bmSelectDur(d) {
+  state.bm.duration = d;
+  renderBookingModal();
+}
+function bmSelectTime(t) {
+  state.bm.time = t;
+  renderBookingModal();
+}
+function bmSelPay(p) {
+  state.bm.payment = p;
+  renderBookingModal();
+}
+
+function bmCheckForm() {
+  const n = document.getElementById('bm-name')?.value.trim();
+  const p = document.getElementById('bm-phone')?.value.trim();
+  if (n) state.bm.name = n;
+  if (p) state.bm.phone = p;
+  const btn = document.getElementById('bm-confirm');
+  if (btn) btn.disabled = !(n && p);
+}
+
+function bmNext() {
+  if (state.bm.step === 1 && state.bm.court !== null && state.bm.duration) state.bm.step = 2;
+  else if (state.bm.step === 2 && state.bm.time) state.bm.step = 3;
+  renderBookingModal();
+}
+
+function bmBack() {
+  if (state.bm.step > 1) state.bm.step--;
+  renderBookingModal();
+}
+
+async function bmConfirm() {
+  const name = document.getElementById('bm-name')?.value.trim();
+  const phone = document.getElementById('bm-phone')?.value.trim();
+  const dateVal = document.getElementById('bm-date')?.value || todayStr();
+  if (!name || !phone) return;
+
+  const courtName = COURTS_CONFIG[state.branch][state.bm.court];
+  const booking = {
+    branch: state.branch,
+    court: courtName,
+    name, phone,
+    duration: state.bm.duration,
+    time: state.bm.time,
+    payment: state.bm.payment,
+    paid: state.bm.payment === 'online',
+    status: 'confirmed',
+    date: dateVal,
+    source: 'admin',
+    created_at: new Date().toISOString()
+  };
+
+  const ok = await saveBookingToDB(booking);
+  if (ok) {
+    closeBookingModal();
+    refreshAll();
+    if (state.currentPanel !== 'dashboard') switchPanel('dashboard');
+  } else {
+    alert('Could not save booking. Check your connection.');
+  }
+}
+
+// ═══════════════════════════════
+// REPORTS
+// ═══════════════════════════════
+async function renderReports() {
+  const allBookings = await getBookings();
+  const all = allBookings.filter(b => b.branch === state.branch);
+  const now = new Date();
+  const thisMonth = all.filter(b => {
+    const d = new Date(b.date);
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  });
+
+  document.getElementById('r-total').textContent = thisMonth.filter(b=>b.status!=='cancelled').length;
+  document.getElementById('r-cash').textContent = thisMonth.filter(b=>b.payment==='cash'&&b.status!=='cancelled').length;
+  document.getElementById('r-online').textContent = thisMonth.filter(b=>b.payment==='online'&&b.status!=='cancelled').length;
+  document.getElementById('r-cancel').textContent = thisMonth.filter(b=>b.status==='cancelled').length;
+  document.getElementById('r-60').textContent = thisMonth.filter(b=>b.duration===60&&b.status!=='cancelled').length;
+  document.getElementById('r-90').textContent = thisMonth.filter(b=>b.duration===90&&b.status!=='cancelled').length;
+  document.getElementById('r-120').textContent = thisMonth.filter(b=>b.duration===120&&b.status!=='cancelled').length;
+
+  // Peak hours
+  const hourCounts = {};
+  thisMonth.filter(b=>b.status!=='cancelled').forEach(b => {
+    const h = b.time?.split(':')[0] || '?';
+    hourCounts[h] = (hourCounts[h]||0)+1;
+  });
+  const sorted = Object.entries(hourCounts).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const peakContainer = document.getElementById('peak-hours-list');
+  if (!sorted.length) {
+    peakContainer.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px 0">No data yet</div>';
+  } else {
+    const max = sorted[0][1];
+    peakContainer.innerHTML = sorted.map(([h,c]) => `
+      <div class="rc-row">
+        <span class="rc-key">${h}:00</span>
+        <div style="display:flex;align-items:center;gap:8px;flex:1;margin-left:12px">
+          <div style="flex:1;background:var(--cream2);border-radius:2px;height:6px">
+            <div style="width:${(c/max)*100}%;height:100%;background:var(--orange);border-radius:2px"></div>
+          </div>
+          <span class="rc-val orange">${c}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Payment breakdown
+  const payBreakdown = {
+    cash:  { label: '💵 Cash',  count: 0, amount: 0 },
+    visa:  { label: '💳 Visa',  count: 0, amount: 0 },
+    cliq:  { label: '📱 CliQ',  count: 0, amount: 0 },
+  };
+  thisMonth.filter(b => b.status !== 'cancelled' && b.paid).forEach(b => {
+    const m = b.payment || 'cash';
+    if (payBreakdown[m]) {
+      payBreakdown[m].count++;
+      payBreakdown[m].amount += (b.amount || 0);
+    }
+  });
+  const pbContainer = document.getElementById('payment-breakdown-list');
+  if (pbContainer) {
+    const rows = Object.entries(payBreakdown).map(([, v]) => `
+      <div class="rc-row">
+        <span class="rc-key">${v.label}</span>
+        <div style="display:flex;gap:16px;align-items:center">
+          <span style="font-size:12px;color:var(--muted)">${v.count} booking${v.count !== 1 ? 's' : ''}</span>
+          <span class="rc-val orange">${v.amount > 0 ? v.amount.toFixed(1) + ' JOD' : '—'}</span>
+        </div>
+      </div>`).join('');
+    pbContainer.innerHTML = rows || '<div style="color:var(--muted);font-size:13px;padding:8px 0">No paid bookings this month</div>';
+  }
+
+  // Top Booker of the Month
+  const bookerMap = {};
+  thisMonth.filter(b => b.status !== 'cancelled').forEach(b => {
+    const key = b.name + '||' + b.phone;
+    if (!bookerMap[key]) bookerMap[key] = { name: b.name, phone: b.phone, count: 0 };
+    bookerMap[key].count++;
+  });
+  const topBookers = Object.values(bookerMap).sort((a, b) => b.count - a.count).slice(0, 3);
+  const topContainer = document.getElementById('top-bookers-list');
+  if (topContainer) {
+    const medals = ['🥇', '🥈', '🥉'];
+    topContainer.innerHTML = !topBookers.length
+      ? '<div style="color:var(--muted);font-size:13px;padding:8px 0">No bookings this month yet</div>'
+      : topBookers.map((b, i) => `
+        <div class="rc-row" style="align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line)">
+          <span class="rc-key" style="font-size:13px">${medals[i]} ${b.name}</span>
+          <div style="text-align:right;flex-shrink:0">
+            <div class="rc-val orange">${b.count} booking${b.count !== 1 ? 's' : ''}</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px">${b.phone}</div>
+          </div>
+        </div>`).join('');
+  }
+
+  // Week chart
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const weekCounts = [0,0,0,0,0,0,0];
+  const weekStart = new Date(now);
+  weekStart.setDate(now.getDate() - now.getDay());
+  all.filter(b=>b.status!=='cancelled').forEach(b => {
+    const d = new Date(b.date);
+    const diff = Math.floor((d - weekStart) / 86400000);
+    if (diff >= 0 && diff < 7) weekCounts[diff]++;
+  });
+  const maxW = Math.max(...weekCounts, 1);
+  const chart = document.getElementById('week-chart');
+  chart.innerHTML = weekCounts.map((c,i) => `
+    <div class="chart-bar-wrap">
+      <div class="chart-bar ${state.branch==='hide'?'hide-bar':'og-bar'}" style="height:${(c/maxW)*60}px"></div>
+      <div class="chart-label">${days[i]}</div>
+    </div>
+  `).join('');
+}
+
+// Poll for new bookings every 15 seconds
+setInterval(() => { if (state.branch) refreshAll(); }, 15000);
+
+
+</script>
+</body>
+</html>
